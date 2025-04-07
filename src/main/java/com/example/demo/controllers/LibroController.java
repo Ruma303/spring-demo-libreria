@@ -6,6 +6,7 @@ import com.example.demo.services.LibroService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.*;
 
 @RestController
 @RequestMapping("/api/libri")
@@ -17,6 +18,21 @@ public class LibroController {
     @GetMapping
     public List<Libro> all() {
         return libroService.all();
+    }
+    
+    @GetMapping("/paginate")
+    public Page<Libro> paginate(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "id") String sortBy,
+        @RequestParam(defaultValue = "asc") String direction
+    ) {
+        Sort sort = direction.equalsIgnoreCase("desc") ?
+                    Sort.by(sortBy).descending() :
+                    Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return libroService.paginate(pageable);
     }
 
     @GetMapping("/{id}")
